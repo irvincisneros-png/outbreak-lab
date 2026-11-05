@@ -4,59 +4,107 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Outbreak Lab</title>
-<style>:root { --ink:#1d2433; --soft:#5b6578; --line:#d6dbe5; --bg:#f6f7fa; --card:#fff; --i:#c8372d; --r:#7d8796; --v:#2f62b5; --accent:#1f6f6b; }
+<style>:root { --ink:#eaf1f8; --soft:#9fb1c7; --line:#2c425f; --bg:#0c1524; --card:#142238; --card2:#1b2e49; --i:#ff5b4d; --r:#aab6c6; --v:#5aa7ff; --accent:#3fd9c4; --gold:#ffc857; }
 * { box-sizing:border-box; }
-body { margin:0; height:100vh; display:flex; flex-direction:column; background:var(--bg); color:var(--ink); font:15px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif; }
-header { display:flex; align-items:center; gap:20px; padding:8px 16px; background:var(--card); border-bottom:1px solid var(--line); }
-h1 { font-size:20px; margin:0; }
-h2 { font-size:18px; margin:0 0 6px; }
-nav { display:flex; gap:6px; }
-button { font:inherit; padding:6px 10px; border:1px solid var(--line); border-radius:6px; background:var(--card); color:var(--ink); cursor:pointer; }
-button:hover:not(:disabled) { border-color:var(--accent); }
-button:focus-visible, input:focus-visible, select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-button:disabled { opacity:.45; cursor:not-allowed; }
-nav button[aria-current="step"], #next { background:var(--accent); color:#fff; border-color:var(--accent); }
-main { flex:1; min-height:0; display:grid; grid-template-columns:300px 432px minmax(0,1fr); gap:10px; padding:10px 16px; }
-section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:10px; min-height:0; overflow:auto; }
-.town canvas { display:block; margin:0 auto; border:1px solid var(--line); }
-.key { display:flex; flex-wrap:wrap; gap:4px 10px; font-size:13px; color:var(--soft); margin:6px 0; }
-#stats { margin:0; font-weight:600; }
+html, body { height:100%; }
+body { margin:0; height:100vh; display:flex; flex-direction:column; color:var(--ink); background:radial-gradient(circle at 50% -20%, #1c3556 0, var(--bg) 60%); font:15px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif; }
+header { display:flex; align-items:center; gap:18px; padding:8px 16px; background:rgba(9,17,30,.75); border-bottom:1px solid var(--line); }
+h1 { font-size:20px; letter-spacing:2px; margin:0; color:var(--accent); }
+.brand p { margin:0; font-size:12px; color:var(--soft); }
+h2 { font-size:21px; margin:0 0 6px; }
+nav { display:flex; gap:5px; }
+.rank { margin-left:auto; display:flex; align-items:center; gap:10px; }
+#rank { margin:0; font-size:13px; font-weight:700; color:var(--gold); white-space:nowrap; }
+#badges { display:flex; gap:4px; }
+.medal { width:30px; height:30px; display:grid; place-items:center; border-radius:50%; border:1.5px dashed var(--line); color:var(--soft); font-size:11px; font-weight:800; }
+.medal.earned { border:2px solid var(--gold); background:var(--gold); color:#21190a; animation:pop .45s ease-out; }
+@keyframes pop { 0% { transform:scale(.4); } 70% { transform:scale(1.25); } 100% { transform:scale(1); } }
+button { font:inherit; padding:7px 11px; border:1px solid var(--line); border-radius:7px; background:var(--card2); color:var(--ink); cursor:pointer; transition:transform .1s, border-color .15s; }
+button:hover:not(:disabled) { border-color:var(--accent); transform:translateY(-1px); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+button:disabled { opacity:.4; cursor:not-allowed; }
+nav button[aria-current="step"] { border-color:var(--accent); color:var(--accent); font-weight:700; }
+button.primary { background:var(--accent); color:#06231f; border-color:var(--accent); font-weight:700; }
+main { flex:1; min-height:0; display:grid; grid-template-columns:320px 432px minmax(0,1fr); gap:10px; padding:10px 16px 4px; }
+section { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px; min-height:0; overflow:auto; }
+.kicker { margin:0; font-size:11px; font-weight:800; letter-spacing:2px; color:var(--gold); }
+#goal { margin:0 0 6px; }
+.town canvas { display:block; margin:0 auto; border-radius:6px; }
+.key { display:flex; flex-wrap:wrap; align-items:center; gap:3px 10px; font-size:12px; color:var(--soft); margin:6px 0; }
+.dot { display:inline-grid; place-items:center; width:15px; height:15px; margin-right:4px; border-radius:3px; font:800 10px system-ui; font-style:normal; color:#0c1524; vertical-align:-3px; }
+.dot.s { background:#51698a; } .dot.i { background:var(--i); color:#fff; } .dot.r { background:var(--r); } .dot.v { background:var(--v); } .dot.h { background:none; border:2px solid var(--gold); }
+.meter-head { display:flex; justify-content:space-between; font-size:13px; color:var(--soft); }
+.meter-head b { color:var(--ink); font-size:17px; }
+.track { position:relative; height:16px; margin:3px 0 18px; border-radius:8px; background:var(--bg); border:1px solid var(--line); }
+#fill { height:100%; width:0; border-radius:8px; background:linear-gradient(90deg,var(--gold),var(--i)); transition:width .2s; }
+#peakMark, #targetMark { position:absolute; top:-3px; bottom:-3px; width:3px; left:0; background:var(--ink); }
+#targetMark { background:var(--accent); }
+#targetLabel { position:absolute; top:21px; left:-40px; width:84px; text-align:center; font-size:11px; color:var(--accent); }
+#stats { margin:0; font-size:13px; color:var(--soft); }
 .buttons { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
-label { display:block; margin:8px 0 2px; font-weight:600; }
-input[type=range], select { width:100%; }
+label { display:block; margin:7px 0 2px; font-weight:600; }
+input[type=range], select { width:100%; accent-color:var(--accent); }
+select { padding:5px; border-radius:6px; background:var(--card2); color:var(--ink); border:1px solid var(--line); font:inherit; }
+.pred { margin:8px 0; padding:8px; border:1px dashed var(--gold); border-radius:8px; }
+.pred.locked { border-style:solid; background:rgba(255,200,87,.09); }
+.pred p { margin:0; }
+.pred button { margin-top:6px; width:100%; }
+#message { margin:6px 0; font-weight:700; color:var(--accent); min-height:20px; }
+#reveal { margin:6px 0; padding:8px 10px; border-radius:8px; background:var(--card2); border-left:4px solid var(--gold); animation:slide .3s ease-out; }
+#reveal h3 { margin:0 0 3px; font-size:15px; color:var(--gold); }
+#reveal p { margin:0; font-size:13px; }
+@keyframes slide { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+#next { width:100%; margin-top:4px; }
 #graph { width:100%; height:auto; }
-.table { height:170px; overflow:auto; margin:6px 0; }
+.table { height:170px; overflow:auto; margin:4px 0; border:1px solid var(--line); border-radius:6px; }
 table { width:100%; border-collapse:collapse; font-size:13px; }
+th { position:sticky; top:0; background:var(--card2); }
 th, td { padding:3px 6px; border-bottom:1px solid var(--line); text-align:left; }
-tr.average { font-weight:700; background:var(--bg); }
-footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
+tr.average { font-weight:700; background:rgba(63,217,196,.13); }
+details { font-size:13px; color:var(--soft); }
+summary { cursor:pointer; color:var(--ink); }
+details ul { margin:4px 0; padding-left:18px; }
+footer { padding:2px 16px 6px; font-size:12px; color:var(--soft); }
+#toast { position:fixed; top:62px; right:16px; z-index:5; padding:10px 14px; border-radius:8px; background:var(--gold); color:#21190a; font-weight:700; animation:slide .3s ease-out; box-shadow:0 8px 24px rgba(0,0,0,.4); }
+@media (prefers-reduced-motion: reduce) { *, *::before { animation:none !important; transition:none !important; } }
 </style>
 </head>
 <body>
-<header><h1>Outbreak Lab</h1><nav id="stages" aria-label="Lesson stages"></nav></header>
+<header>
+  <div class="brand"><h1>OUTBREAK LAB</h1><p>Seabrook Response Centre</p></div>
+  <nav id="stages" aria-label="Lesson stages"></nav>
+  <div class="rank"><p id="rank"></p><div id="badges" aria-label="Badges"></div></div>
+</header>
 <main>
   <section class="panel">
+    <p class="kicker" id="kicker"></p>
     <h2 id="title"></h2>
     <p id="goal"></p>
     <div id="picker"></div>
     <div id="sliders"></div>
+    <div id="prediction"></div>
     <div class="buttons">
       <button id="step">Step</button><button id="play">Play</button>
-      <button id="reset">Reset</button><button id="three">Run 3 times</button>
+      <button id="reset">Reset</button><button id="three" class="primary">Run 3 times</button>
     </div>
     <p id="message" role="status"></p>
-    <button id="next">Next</button>
+    <div id="reveal" role="status" hidden></div>
+    <button id="next" class="primary"></button>
   </section>
   <section class="town">
-    <canvas id="grid" width="400" height="400" aria-label="Map of the town"></canvas>
-    <p class="key"><span>Blank: susceptible</span><span>I: infectious</span><span>R: recovered</span><span>V: vaccinated</span></p>
+    <canvas id="grid" width="400" height="424" aria-label="Map of the town of Seabrook"></canvas>
+    <p class="key"><span><i class="dot s"></i>Susceptible</span><span><i class="dot i">I</i>Infectious</span><span><i class="dot r">R</i>Recovered</span><span><i class="dot v">V</i>Vaccinated</span><span id="hubKey" hidden><i class="dot h"></i>Hub</span></p>
+    <div class="meter">
+      <div class="meter-head"><span>Infected now <b id="nowPct"></b></span><span>Highest peak <b id="peakPct"></b></span></div>
+      <div class="track"><div id="fill"></div><div id="peakMark"></div><div id="targetMark" hidden><span id="targetLabel"></span></div></div>
+    </div>
     <p id="stats"></p>
   </section>
   <section class="data">
     <canvas id="graph" width="460" height="200" aria-label="Line graph of people in each group by day"></canvas>
     <p class="key"><span>Grey line: susceptible</span><span>Red line: infectious</span><span>Dashed blue line: recovered</span></p>
     <div class="table"><table><thead><tr><th>Run</th><th>Settings</th><th>Peak %</th><th>Total %</th><th>Days</th></tr></thead><tbody id="log"></tbody></table></div>
-    <details><summary>How this model works</summary>
+    <details id="howItWorks"><summary>How this model works</summary>
       <ul>
         <li>One step is one day, and everyone updates at the same moment.</li>
         <li>400 people live on a map. Each infectious person meets the set number of people nearby each day.</li>
@@ -69,6 +117,7 @@ footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
   </section>
 </main>
 <footer>Seabrook and the Zephyr virus are fictional. This is a model, not a medical prediction.</footer>
+<div id="toast" role="status" hidden></div>
 <script>(function (root, factory) {
   const api = factory();
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
@@ -165,6 +214,7 @@ footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
     if (run.done) return run;
     const { town, settings, r } = run;
     const caught = new Set();
+    run.lastMet = [];
     for (let person = 0; person < POP; person++) {
       if (run.state[person] !== I) continue;
       run.daysDone[person]++;
@@ -173,7 +223,11 @@ footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
         const multiplier = town.hubSet.has(person) ? HUB_MULTIPLIER : 1;
         const met = sampleK(town.neighbours[person], settings.contacts * multiplier, r);
         for (const other of met) {
-          if (run.state[other] === S && r() < settings.chance) caught.add(other);
+          if (run.state[other] === S) {
+            const passed = r() < settings.chance;
+            if (passed) caught.add(other);
+            run.lastMet.push({ from: person, to: other, passed });
+          }
         }
       }
     }
@@ -201,7 +255,15 @@ footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
     };
   }
 
-  return { SIZE, POP, MAX_DAYS, S, I, R, V, id, rng, sampleK, makeTown, createRun, stepRun, runToEnd, summary };
+  function compareTrend(pairs) {
+    const sorted = pairs.slice().sort((a, b) => a[0] - b[0]);
+    const first = sorted[0][1];
+    const last = sorted[sorted.length - 1][1];
+    const gap = last - first;
+    return { direction: Math.abs(gap) < 3 ? 'same' : gap > 0 ? 'up' : 'down', first, last };
+  }
+
+  return { compareTrend, SIZE, POP, MAX_DAYS, S, I, R, V, id, rng, sampleK, makeTown, createRun, stepRun, runToEnd, summary };
 });
 </script>
 <script>(function () {
@@ -233,20 +295,36 @@ footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
     { text: 'Rule 3: chance. Each contact now has a 20% chance of passing it on. Our model is complete. Which real things has it simulated?', settings: { contacts: 3, chance: 20, days: 5, isolate: 0, vaccinated: 0 } },
   ];
   const STAGES = [
-    { id: 'start', title: 'Start', goal: 'Computers let us build models that simulate real events. We can easily change variables to see what effect they have. This is syllabus point 8.2.5.' },
-    { id: 'build', title: 'Build', goal: '' },
-    { id: 'm1', title: 'Mission 1', sliders: ['contacts'], logs: true, goal: 'Variable to change: contacts per day. Write your prediction first. Use Run 3 times at 2, 4 and 8 contacts, then compare the averages. Why do runs with the same settings differ?' },
+    { id: 'start', title: 'Your new job', goal: 'You are the new Outbreak Analyst for the town of Seabrook. A new virus called Zephyr has been detected. Your tool is a computer model. Computers let us build models that simulate real events, and we can easily change variables to see what effect they have. This is syllabus point 8.2.5.' },
+    { id: 'build', title: 'Build the model', goal: '' },
+    { id: 'm1', title: 'Mission 1: Contacts', sliders: ['contacts'], logs: true, goal: 'Variable to change: contacts per day. Lock in a prediction, then use Run 3 times at 2, 4 and 8 contacts. Why do runs with the same settings differ?' },
     { id: 'inv', title: 'Investigation', logs: true, goal: 'Investigation 8.4.2.5. Choose one question, then use Run 3 times at each of the 3 values. Record peak % in your worksheet.' },
-    { id: 'm2', title: 'Mission 2', logs: true, goal: `Extension. You have ${DOSES} doses. Choose a strategy and use Run 3 times. Can the average peak stay under ${TARGET_PEAK}%?` },
+    { id: 'm2', title: 'Mission 2: Vaccine strategy', logs: true, goal: `Extension. You have ${DOSES} doses. Choose a strategy and use Run 3 times. Can the average peak stay under ${TARGET_PEAK}%?` },
     { id: 'sandbox', title: 'Sandbox', sliders: Object.keys(SLIDERS), logs: true, goal: 'Every variable is unlocked. Change one at a time, and use repeats before you trust a result.' },
   ];
 
+  const NAV = { start: 'Start', build: 'Build', m1: 'Mission 1', inv: 'Investigation', m2: 'Mission 2', sandbox: 'Sandbox' };
+  const KICKERS = { start: 'CASE FILE 8.2.5', build: 'TRAINING', m1: 'CASE FILE 1', inv: 'CASE FILE 8.4.2.5', m2: 'EXTENSION FILE', sandbox: 'OPEN LAB' };
+  const BADGES = {
+    builder: ['MB', 'Model Builder', 'Added all three rules to the model'],
+    predictor: ['PM', 'Prediction Maker', 'Locked in a prediction before testing'],
+    fair: ['FT', 'Fair Tester', 'Repeated runs at three values'],
+    evidence: ['EC', 'Evidence Checker', 'Compared averages in the investigation'],
+    strategist: ['ST', 'Strategy Tester', 'Compared all three vaccine strategies'],
+    inspector: ['MI', 'Model Inspector', 'Read the rules behind the model'],
+  };
+  const TREND_WORDS = { up: 'go up', down: 'go down', same: 'stay about the same' };
   const el = (name) => document.getElementById(name);
   const state = {
     stage: 0, buildStep: 0, values: { ...DEFAULTS }, question: 'A', strategy: 'random',
     run: null, timer: null, rows: [], runNumber: 0,
     sandboxOpen: params.get('teacher') === '1',
+    predictions: {}, results: {}, reveals: {}, badges: new Set(), pulseFrame: null,
   };
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const scope = () => (stage().id === 'inv' ? `inv${state.question}` : stage().id);
+  const needsPrediction = () => ['m1', 'inv', 'm2'].includes(stage().id);
+  const locked = () => !needsPrediction() || Boolean(state.predictions[scope()]);
   const stage = () => STAGES[state.stage];
 
   function simSettings() {
@@ -264,6 +342,7 @@ footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
 
   function newRun() {
     stopPlay();
+    cancelAnimationFrame(state.pulseFrame);
     const seed = stage().id === 'build' ? BUILD_SEED : Math.floor(Math.random() * 4294967296);
     state.run = Sim.createRun(town, simSettings(), seed);
     drawAll();
@@ -282,12 +361,13 @@ footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
     Sim.stepRun(state.run);
     if (state.run.done) { stopPlay(); logRun(state.run); }
     drawAll();
+    animatePulses();
   }
 
   function togglePlay() {
     if (state.timer) { stopPlay(); return; }
     if (state.run.done) newRun();
-    state.timer = setInterval(stepOnce, 120);
+    state.timer = setInterval(stepOnce, 280);
     el('play').textContent = 'Pause';
   }
 
@@ -312,6 +392,7 @@ footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
     let text = `Average peak of 3 runs: ${average}%`;
     if (stage().id === 'm2') text += average < TARGET_PEAK ? '. Target met.' : '. Target not met yet.';
     el('message').textContent = text;
+    recordAverage(average);
     renderLog();
     drawAll();
   }
@@ -332,27 +413,104 @@ footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
     }));
   }
 
+  const PITCH = 19;
+  const ROAD = 5;
+  const place = (person) => {
+    const col = person % Sim.SIZE;
+    const row = Math.floor(person / Sim.SIZE);
+    return { x: 3 + col * PITCH + Math.floor(col / 5) * ROAD, y: 3 + row * PITCH + Math.floor(row / 5) * ROAD };
+  };
+  const STATE_STYLE = {
+    [Sim.S]: ['#51698a', '', ''], [Sim.I]: ['#ff5b4d', 'I', '#ffffff'],
+    [Sim.R]: ['#aab6c6', 'R', '#0c1524'], [Sim.V]: ['#5aa7ff', 'V', '#0c1524'],
+  };
+
+  const mapBase = (function () {
+    const base = document.createElement('canvas');
+    base.width = 400; base.height = 424;
+    const ctx = base.getContext('2d');
+    ctx.fillStyle = '#20384f';
+    ctx.fillRect(0, 0, 400, 400);
+    ctx.fillStyle = '#34506e';
+    for (const n of [1, 2, 3]) {
+      const offset = 2 + n * 5 * PITCH + (n - 1) * ROAD;
+      ctx.fillRect(offset, 0, ROAD + 2, 400);
+      ctx.fillRect(0, offset, 400, ROAD + 2);
+    }
+    const sea = ctx.createLinearGradient(0, 398, 0, 424);
+    sea.addColorStop(0, '#1d6f8f');
+    sea.addColorStop(1, '#0f4a68');
+    ctx.fillStyle = sea;
+    ctx.fillRect(0, 398, 400, 26);
+    ctx.strokeStyle = 'rgba(255,255,255,.3)';
+    ctx.beginPath();
+    for (let x = 0; x < 400; x += 24) {
+      ctx.moveTo(x, 407);
+      ctx.quadraticCurveTo(x + 6, 402, x + 12, 407);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#cfeaf5';
+    ctx.font = '700 11px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('SEABROOK BAY', 200, 419);
+    return base;
+  })();
+
+  function drawHouse(ctx, person, value) {
+    const { x, y } = place(person);
+    const [fill, letter, ink] = STATE_STYLE[value];
+    ctx.fillStyle = fill;
+    ctx.beginPath();
+    ctx.moveTo(x, y + 6); ctx.lineTo(x + 8.5, y); ctx.lineTo(x + 17, y + 6);
+    ctx.lineTo(x + 15, y + 6); ctx.lineTo(x + 15, y + 17); ctx.lineTo(x + 2, y + 17); ctx.lineTo(x + 2, y + 6);
+    ctx.closePath();
+    ctx.fill();
+    if (letter) {
+      ctx.fillStyle = ink;
+      ctx.fillText(letter, x + 8.5, y + 11);
+    }
+  }
+
   function drawGrid() {
     const ctx = el('grid').getContext('2d');
-    const cell = 400 / Sim.SIZE;
     const showHubs = stage().id === 'm2';
-    ctx.clearRect(0, 0, 400, 400);
-    ctx.font = 'bold 12px system-ui';
+    ctx.drawImage(mapBase, 0, 0);
+    ctx.font = '800 10px system-ui';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     state.run.state.forEach((value, person) => {
-      const x = (person % Sim.SIZE) * cell;
-      const y = Math.floor(person / Sim.SIZE) * cell;
-      ctx.fillStyle = { [Sim.S]: '#eef1f6', [Sim.I]: '#c8372d', [Sim.R]: '#7d8796', [Sim.V]: '#2f62b5' }[value];
-      ctx.fillRect(x + 1, y + 1, cell - 2, cell - 2);
-      const letter = { [Sim.I]: 'I', [Sim.R]: 'R', [Sim.V]: 'V' }[value];
-      if (letter) { ctx.fillStyle = '#fff'; ctx.fillText(letter, x + cell / 2, y + cell / 2 + 1); }
+      drawHouse(ctx, person, value);
       if (showHubs && town.hubSet.has(person)) {
-        ctx.strokeStyle = '#1d2433';
+        const { x, y } = place(person);
+        ctx.strokeStyle = '#ffc857';
         ctx.lineWidth = 2;
-        ctx.strokeRect(x + 2, y + 2, cell - 4, cell - 4);
+        ctx.strokeRect(x - 1, y - 1, 19, 19);
       }
     });
+  }
+
+  function animatePulses() {
+    cancelAnimationFrame(state.pulseFrame);
+    const links = (state.run.lastMet || []).filter((c) => c.passed);
+    if (reducedMotion || !links.length) return;
+    const ctx = el('grid').getContext('2d');
+    const started = performance.now();
+    const frame = (now) => {
+      const t = Math.min(1, (now - started) / 240);
+      drawGrid();
+      ctx.lineWidth = 2;
+      for (const link of links) {
+        const a = place(link.from);
+        const b = place(link.to);
+        const ax = a.x + 8, ay = a.y + 9, bx = b.x + 8, by = b.y + 9;
+        ctx.strokeStyle = `rgba(255,200,87,${1 - t * 0.7})`;
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+        ctx.fillStyle = '#ffc857';
+        ctx.beginPath(); ctx.arc(ax + (bx - ax) * t, ay + (by - ay) * t, 3, 0, Math.PI * 2); ctx.fill();
+      }
+      if (t < 1) state.pulseFrame = requestAnimationFrame(frame); else drawGrid();
+    };
+    state.pulseFrame = requestAnimationFrame(frame);
   }
 
   function drawGraph() {
@@ -364,18 +522,18 @@ footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
     const w = canvas.width - left - right;
     const h = canvas.height - top - bottom;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = '#d6dbe5';
+    ctx.strokeStyle = '#2c425f';
     ctx.strokeRect(left, top, w, h);
-    ctx.fillStyle = '#5b6578';
+    ctx.fillStyle = '#9fb1c7';
     ctx.font = '12px system-ui';
     ctx.textAlign = 'left';
-    ctx.fillText('People', 2, 12);
+    ctx.fillText('People', left + 6, 22);
     ctx.fillText('Days', canvas.width - 34, canvas.height - 6);
     ctx.fillText('400', 8, top + 12);
     ctx.fillText('0', 22, top + h);
     ctx.fillText('0', left, canvas.height - 6);
     ctx.fillText(`${days} days shown`, left + w / 2 - 34, canvas.height - 6);
-    const series = [['s', '#5b6578', []], ['i', '#c8372d', []], ['r', '#2f62b5', [6, 3]]];
+    const series = [['s', '#aab6c6', []], ['i', '#ff5b4d', []], ['r', '#5aa7ff', [6, 3]]];
     for (const [key, colour, dash] of series) {
       ctx.beginPath();
       ctx.strokeStyle = colour;
@@ -396,13 +554,19 @@ footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
     drawGrid();
     drawGraph();
     const result = Sim.summary(state.run);
-    el('stats').textContent = `Day ${state.run.day}. Peak infected ${result.peakPct}%. Total infected ${result.totalPct}%.`;
+    const last = state.run.history[state.run.history.length - 1];
+    const now = Math.round((last.i / Sim.POP) * 1000) / 10;
+    el('stats').textContent = `Day ${state.run.day} in Seabrook. Total infected ${result.totalPct}%.`;
+    el('nowPct').textContent = `${now}%`;
+    el('peakPct').textContent = `${result.peakPct}%`;
+    el('fill').style.width = `${now}%`;
+    el('peakMark').style.left = `${result.peakPct}%`;
   }
 
   function renderNav() {
     el('stages').replaceChildren(...STAGES.map((item, index) => {
       const button = document.createElement('button');
-      button.textContent = item.title;
+      button.textContent = NAV[item.id];
       button.disabled = item.id === 'sandbox' && !state.sandboxOpen;
       if (index === state.stage) button.setAttribute('aria-current', 'step');
       button.onclick = () => goTo(index);
@@ -453,9 +617,117 @@ footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
     picker.replaceChildren(label, select);
   }
 
+  function renderBadges() {
+    el('badges').replaceChildren(...Object.entries(BADGES).map(([key, [mark, name, why]]) => {
+      const medal = document.createElement('span');
+      medal.className = state.badges.has(key) ? 'medal earned' : 'medal';
+      medal.textContent = mark;
+      medal.title = `${name}: ${why}`;
+      return medal;
+    }));
+    const count = state.badges.size;
+    el('rank').textContent = count >= 5 ? 'Lead Analyst' : count >= 2 ? 'Outbreak Analyst' : 'Trainee Analyst';
+  }
+
+  function award(key) {
+    if (state.badges.has(key)) return;
+    state.badges.add(key);
+    renderBadges();
+    const toast = el('toast');
+    toast.textContent = `Badge earned: ${BADGES[key][1]}`;
+    toast.hidden = false;
+    clearTimeout(state.toastTimer);
+    state.toastTimer = setTimeout(() => { toast.hidden = true; }, 3000);
+  }
+
+  function renderPrediction() {
+    const box = el('prediction');
+    if (!needsPrediction()) { box.replaceChildren(); return; }
+    const saved = state.predictions[scope()];
+    const wrap = document.createElement('div');
+    wrap.className = saved ? 'pred locked' : 'pred';
+    const isStrategy = stage().id === 'm2';
+    if (saved) {
+      const text = document.createElement('p');
+      text.textContent = isStrategy ? `Prediction locked: ${STRATEGIES[saved]} will be lowest.` : `Prediction locked: peak infections will ${TREND_WORDS[saved]}.`;
+      wrap.append(text);
+    } else {
+      const variable = stage().id === 'm1' ? 'contacts' : SLIDERS[QUESTIONS[state.question].key].label.toLowerCase();
+      const label = document.createElement('label');
+      const select = document.createElement('select');
+      const button = document.createElement('button');
+      select.id = 'predict';
+      label.htmlFor = 'predict';
+      label.textContent = isStrategy ? 'Which strategy will give the lowest peak?' : `As ${variable} goes up, peak infections will:`;
+      select.add(new Option('Choose your prediction', ''));
+      const options = isStrategy ? Object.entries(STRATEGIES) : Object.entries(TREND_WORDS);
+      for (const [value, text] of options) select.add(new Option(text, value));
+      button.textContent = 'Lock in prediction';
+      button.className = 'primary';
+      button.disabled = true;
+      select.onchange = () => { button.disabled = !select.value; };
+      button.onclick = () => {
+        state.predictions[scope()] = select.value;
+        award('predictor');
+        renderPrediction();
+        updateRunButtons();
+      };
+      wrap.append(label, select, button);
+    }
+    box.replaceChildren(wrap);
+  }
+
+  function updateRunButtons() {
+    const canRun = stage().id !== 'start' && locked();
+    for (const name of ['step', 'play', 'three']) el(name).disabled = !canRun;
+    el('reset').disabled = stage().id === 'start';
+  }
+
+  function recordAverage(average) {
+    const id = stage().id;
+    if (!needsPrediction()) return;
+    const value = id === 'm1' ? state.values.contacts : id === 'inv' ? state.values[QUESTIONS[state.question].key] : state.strategy;
+    const results = (state.results[scope()] = state.results[scope()] || {});
+    results[value] = average;
+    const pairs = Object.entries(results).map(([k, avg]) => [id === 'm2' ? k : Number(k), avg]);
+    if (pairs.length < 3) return;
+    const predicted = state.predictions[scope()];
+    let supported;
+    let detail;
+    if (id === 'm2') {
+      const sorted = pairs.slice().sort((a, b) => a[1] - b[1]);
+      supported = sorted[0][0] === predicted;
+      detail = `${STRATEGIES[sorted[0][0]]} had the lowest average peak (${sorted[0][1]}%).`;
+      award('strategist');
+    } else {
+      const trend = Sim.compareTrend(pairs);
+      supported = trend.direction === predicted;
+      detail = `From your lowest to highest value, average peak went from ${trend.first}% to ${trend.last}%.`;
+      award(id === 'm1' ? 'fair' : 'evidence');
+    }
+    state.reveals[scope()] = {
+      title: supported ? 'Prediction supported' : 'Prediction not supported',
+      detail: `${detail} ${supported ? 'Your evidence matches your prediction.' : 'A surprise is still useful evidence. What might explain it?'}`,
+    };
+    renderReveal();
+  }
+
+  function renderReveal() {
+    const box = el('reveal');
+    const data = state.reveals[scope()];
+    box.hidden = !data;
+    if (!data) return;
+    const heading = document.createElement('h3');
+    const text = document.createElement('p');
+    heading.textContent = data.title;
+    text.textContent = data.detail;
+    box.replaceChildren(heading, text);
+  }
+
   function render() {
     const item = stage();
     const isBuild = item.id === 'build';
+    el('kicker').textContent = KICKERS[item.id];
     el('title').textContent = item.title;
     el('goal').textContent = isBuild ? BUILD_STEPS[state.buildStep].text : item.goal;
     if (item.id === 'inv') el('goal').textContent += ` Values to test: ${QUESTIONS[state.question].values}.`;
@@ -463,11 +735,16 @@ footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
     renderNav();
     renderPicker();
     renderSliders(keys);
+    renderPrediction();
+    renderReveal();
     el('message').textContent = '';
     el('three').hidden = !item.logs;
-    const canRun = item.id !== 'start';
-    for (const name of ['step', 'play', 'reset']) el(name).disabled = !canRun;
-    el('next').textContent = isBuild && state.buildStep < 2 ? 'Next rule' : 'Next';
+    updateRunButtons();
+    el('hubKey').hidden = item.id !== 'm2';
+    el('targetMark').hidden = item.id !== 'm2';
+    el('targetMark').style.left = `${TARGET_PEAK}%`;
+    el('targetLabel').textContent = `Target ${TARGET_PEAK}%`;
+    el('next').textContent = item.id === 'start' ? 'Open the case file' : isBuild && state.buildStep < 2 ? 'Add next rule' : 'Next file';
     el('next').hidden = item.id === 'sandbox' || (item.id === 'm2' && !state.sandboxOpen);
     newRun();
   }
@@ -485,6 +762,7 @@ footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
       render();
       return;
     }
+    if (stage().id === 'build') award('builder');
     if (stage().id === 'inv') state.sandboxOpen = true;
     goTo(state.stage + 1);
   }
@@ -494,6 +772,8 @@ footer { padding:4px 16px 8px; font-size:12px; color:var(--soft); }
   el('reset').onclick = newRun;
   el('three').onclick = runThree;
   el('next').onclick = next;
+  el('howItWorks').ontoggle = () => { if (el('howItWorks').open) award('inspector'); };
+  renderBadges();
   render();
 })();
 </script>
